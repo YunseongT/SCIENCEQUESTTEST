@@ -87,13 +87,13 @@
         <div class="game-card w-full max-w-3xl rounded-2xl p-6 md:p-8 shadow-lg text-center">
             <div class="flex justify-between items-center mb-4">
                  <div class="flex gap-3">
-                    <span class="text-3xl cursor-pointer" onclick="showInfo('spring')">🌱</span>
-                    <span class="text-3xl cursor-pointer" onclick="showInfo('summer')">☀️</span>
-                    <span class="text-3xl cursor-pointer" onclick="showInfo('autumn')">🍂</span>
+                     <span class="text-3xl cursor-pointer" onclick="showInfo('spring')">🌱</span>
+                     <span class="text-3xl cursor-pointer" onclick="showInfo('summer')">☀️</span>
+                     <span class="text-3xl cursor-pointer" onclick="showInfo('autumn')">🍂</span>
                      <span class="text-3xl cursor-pointer" onclick="showInfo('winter')">❄️</span>
-                </div>
-                <div id="progress" class="font-bold text-gray-700"></div>
-                <div id="main-icon" class="text-5xl cursor-pointer transition-transform duration-300 hover:scale-110" onclick="showTip()">🌍</div>
+                 </div>
+                 <div id="progress" class="font-bold text-gray-700"></div>
+                 <div id="main-icon" class="text-5xl cursor-pointer transition-transform duration-300 hover:scale-110" onclick="showTip()">🌍</div>
             </div>
             
             <p id="achievement-standard" class="text-sm font-bold text-indigo-600 mb-2"></p>
@@ -142,6 +142,8 @@
         let shuffledQuestions = [];
         let currentQuestionIndex = 0;
         let studentInfo = {};
+        let individualResults = []; // 각 문제별 결과를 저장할 배열
+
         const achievements = {
             'revolution-tilt': { name: "자전축과 공전", correct: 0, total: 5, badge: false },
             'sun-altitude': { name: "태양 고도와 기온", correct: 0, total: 5, badge: false },
@@ -170,6 +172,7 @@
 
         function startGame() {
             currentQuestionIndex = 0;
+            individualResults = []; // 게임 시작 시 결과 배열 초기화
             for (const key in achievements) {
                 achievements[key].correct = 0;
                 achievements[key].badge = false;
@@ -205,6 +208,14 @@
         function handleOptionClick(selectedIndex) {
             const questionData = shuffledQuestions[currentQuestionIndex];
             const isCorrect = (selectedIndex === questionData.answer);
+            
+            // 각 문제 결과 기록
+            individualResults.push({
+                question: questionData.question,
+                userAnswer: questionData.options[selectedIndex],
+                correctAnswer: questionData.options[questionData.answer],
+                isCorrect: isCorrect ? 'O' : 'X'
+            });
             
             Array.from(optionsContainer.children).forEach((btn, index) => {
                 btn.disabled = true;
@@ -318,6 +329,9 @@
                 badge_altitude: achievements['sun-altitude'].badge ? 'O' : 'X',
                 score_comp: `${achievements['comprehensive'].correct}/${achievements['comprehensive'].total}`,
                 badge_comp: achievements['comprehensive'].badge ? 'O' : 'X',
+                // 각 문제별 결과를 JSON 문자열 형태로 추가
+                // 참고: Google Sheet에 이 데이터를 받을 'individualResults' 같은 이름의 열이 필요합니다.
+                individualResults: JSON.stringify(individualResults, null, 2)
             };
 
             try {
@@ -361,6 +375,8 @@
                 autumn: "🍂 가을: 태양의 남중 고도가 점점 낮아지고 낮이 짧아져요.",
                 winter: "❄️ 겨울: 태양의 남중 고도가 가장 낮고 낮이 가장 짧아요."
             };
+            // alert()는 일부 환경에서 제한될 수 있으므로 모달이나 다른 UI로 대체하는 것이 좋습니다.
+            // 여기서는 기존 기능을 유지합니다.
             alert(infos[season]);
         }
 
@@ -390,4 +406,3 @@
     </script>
 </body>
 </html>
-
